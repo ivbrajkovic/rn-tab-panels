@@ -1,7 +1,7 @@
-import React from "react";
+import React, { FC } from "react";
 
 import TabListProvider from "../TabsListProvider";
 
-export const Tabs = ({ children }) => (
+export const Tabs: FC = ({ children }) => (
   <TabListProvider>{children}</TabListProvider>
 );

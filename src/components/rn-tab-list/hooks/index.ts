@@ -1,5 +1,8 @@
-import { useContext } from "react";
-import { TabListContext, TabListSetContext } from "../context";
+import { useEffect, useRef, useContext } from "react";
+import {
+  TabListContext,
+  TabListSetContext,
+} from "../components/TabsListProvider";
 
 export const useTabListContext = () => {
   const context = useContext(TabListContext);
@@ -20,3 +23,15 @@ export const useTabListSetContext = () => {
   }
   return context;
 };
+
+export default function useUserRenderCount(name: string) {
+  const countRef = useRef(0);
+  useEffect(() => {
+    console.log(`${name} rendered ${++countRef.current} times.`);
+  });
+  useEffect(() => {
+    return () => {
+      console.log(`${name} unmounted.`);
+    };
+  }, []);
+}

@@ -1,4 +1,4 @@
-import { Children, FC } from "react";
+import { Children, FC, useCallback, useEffect } from "react";
 import React from "react";
 import { Dimensions, StyleSheet } from "react-native";
 import Animated, {
@@ -13,6 +13,7 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import PanelContentWrapper from "../PanelContentWrapper";
+import useUserRenderCount, { useTabListSetContext } from "../../hooks";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
@@ -29,6 +30,9 @@ export const Panel: FC<IPanel> = ({
   onIndexChange,
   children,
 }) => {
+  useUserRenderCount("Panel");
+
+  const setContext = useTabListSetContext();
   const childrenArray = Children.toArray(children);
 
   const translateX = useSharedValue(0);
@@ -36,6 +40,24 @@ export const Panel: FC<IPanel> = ({
 
   const minPositionX = -childrenArray.length * screenWidth + screenWidth;
   const maxPositionX = 0;
+
+  const setActiveIndex = useCallback((index: number) => {
+    "worklet";
+    const distance = Math.abs(index - currentIndex.value);
+    currentIndex.value = index;
+    translateX.value = withTiming(-index * screenWidth, {
+      easing: Easing.out(Easing.ease),
+      duration: distance * 500,
+    });
+  }, []);
+
+  useEffect(() => {
+    setContext({
+      currentIndex,
+      translateX,
+      setActiveIndex,
+    });
+  }, []);
 
   const panGesture = Gesture.Pan()
     .onChange(({ changeX }) => {
@@ -60,7 +82,7 @@ export const Panel: FC<IPanel> = ({
       }
 
       // Snap to next position
-      translateX.value = withTiming(-(currentIndex.value * screenWidth), {
+      translateX.value = withTiming(-currentIndex.value * screenWidth, {
         easing: Easing.out(Easing.ease),
       });
     });
