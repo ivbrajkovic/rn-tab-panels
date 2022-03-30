@@ -1,6 +1,9 @@
 import { Image, StyleSheet, View, Dimensions } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Tabs } from "./src/components/react-native-tabs";
+import {
+  GestureHandlerRootView,
+  ScrollView,
+} from "react-native-gesture-handler";
+import { Panel, TabItem, Tabs } from "./src/components/rn-tab-list";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -9,7 +12,33 @@ console.log(width, height);
 export default function App() {
   return (
     <View style={styles.container}>
-      <Tabs>
+      <Panel onIndexChange={(index) => console.log(index)}>
+        <ScrollView pagingEnabled>
+          <Image
+            source={{
+              uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
+            }}
+            style={styles.image}
+          />
+          <Image
+            source={{
+              uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
+            }}
+            style={styles.image}
+          />
+          <Image
+            source={{
+              uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
+            }}
+            style={styles.image}
+          />
+          <Image
+            source={{
+              uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
+            }}
+            style={styles.image}
+          />
+        </ScrollView>
         <Image
           source={{
             uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
@@ -22,13 +51,8 @@ export default function App() {
           }}
           style={styles.image}
         />
-        <Image
-          source={{
-            uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
-          }}
-          style={styles.image}
-        />
-      </Tabs>
+        <Tabs titles={["Tab 1", "Tab 2", "Tab 3"]} />
+      </Panel>
     </View>
   );
 }
