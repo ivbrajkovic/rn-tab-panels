@@ -1,10 +1,11 @@
-import { Children, FC, useCallback, useEffect } from "react";
+import { Children, FC, useEffect, useRef } from "react";
 import React from "react";
-import { Dimensions, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import Animated, {
   Easing,
   runOnJS,
   useSharedValue,
+  useWorkletCallback,
   withTiming,
 } from "react-native-reanimated";
 import {
@@ -14,15 +15,16 @@ import {
 } from "react-native-gesture-handler";
 import PanelContentWrapper from "../PanelContentWrapper";
 import useUserRenderCount, { useTabListSetContext } from "../../hooks";
-
-const { width: screenWidth } = Dimensions.get("screen");
-
-const CHANGE_INDEX_THRESHOLD = screenWidth * 0.2;
+import {
+  CHANGE_INDEX_THRESHOLD,
+  MAX_POSITION,
+  SCREEN_WIDTH,
+} from "../constant";
 
 export interface IPanel {
-  children: React.ReactNode;
   changeThreshold?: number;
-  onIndexChange: (index: number) => void;
+  onIndexChange?: (index: number) => void;
+  children: FC<{ title: string }>;
 }
 
 export const Panel: FC<IPanel> = ({
@@ -33,29 +35,36 @@ export const Panel: FC<IPanel> = ({
   useUserRenderCount("Panel");
 
   const setContext = useTabListSetContext();
-  const childrenArray = Children.toArray(children);
 
   const translateX = useSharedValue(0);
   const currentIndex = useSharedValue(0);
 
-  const minPositionX = -childrenArray.length * screenWidth + screenWidth;
-  const maxPositionX = 0;
+  const childrenArr = Children.toArray(children);
+  const titles: string[] = childrenArr.map(
+    (child, index) => child.props.title || index.toString(),
+  );
 
-  const setActiveIndex = useCallback((index: number) => {
+  const setActiveIndex = useWorkletCallback((index: number) => {
     "worklet";
     const distance = Math.abs(index - currentIndex.value);
     currentIndex.value = index;
-    translateX.value = withTiming(-index * screenWidth, {
+    translateX.value = withTiming(-index * SCREEN_WIDTH, {
       easing: Easing.out(Easing.ease),
       duration: distance * 500,
     });
   }, []);
 
+  const minPositionRef = useRef(
+    -childrenArr.length * SCREEN_WIDTH + SCREEN_WIDTH,
+  );
+
   useEffect(() => {
     setContext({
-      currentIndex,
+      titles,
       translateX,
+      currentIndex,
       setActiveIndex,
+      minPosition: minPositionRef.current,
     });
   }, []);
 
@@ -64,25 +73,30 @@ export const Panel: FC<IPanel> = ({
       "worklet";
       const x = (translateX.value += changeX);
       translateX.value =
-        x < minPositionX ? minPositionX : x > maxPositionX ? maxPositionX : x;
+        x < minPositionRef.current
+          ? minPositionRef.current
+          : x > MAX_POSITION
+          ? MAX_POSITION
+          : x;
     })
     .onEnd(({ translationX }) => {
       // Get swipe direction
       const direction = translationX < 0 ? 1 : -1;
 
       // Do nothing if on the edge
-      if (direction === 1 && translateX.value === minPositionX) return;
-      else if (direction === -1 && translateX.value === maxPositionX) return;
+      if (direction === 1 && translateX.value === minPositionRef.current)
+        return;
+      else if (direction === -1 && translateX.value === MAX_POSITION) return;
 
       // Snap back to the center if lower than change threshold
-      if (Math.abs(translationX) > changeThreshold) {
+      if (Math.abs(translationX) > SCREEN_WIDTH * changeThreshold) {
         currentIndex.value = currentIndex.value + 1 * direction;
         if (typeof onIndexChange === "function")
           runOnJS(onIndexChange)(currentIndex.value);
       }
 
       // Snap to next position
-      translateX.value = withTiming(-currentIndex.value * screenWidth, {
+      translateX.value = withTiming(-currentIndex.value * SCREEN_WIDTH, {
         easing: Easing.out(Easing.ease),
       });
     });
@@ -90,18 +104,16 @@ export const Panel: FC<IPanel> = ({
   return (
     <GestureHandlerRootView style={{ ...StyleSheet.absoluteFillObject }}>
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={{ ...StyleSheet.absoluteFillObject }}>
-          {childrenArray.map((child, index) => {
-            return (
-              <PanelContentWrapper
-                key={index}
-                index={index}
-                position={translateX}
-              >
-                {child}
-              </PanelContentWrapper>
-            );
-          })}
+        <Animated.View style={StyleSheet.absoluteFillObject}>
+          {childrenArr.map((child, index) => (
+            <PanelContentWrapper
+              key={index}
+              index={index}
+              position={translateX}
+            >
+              {child}
+            </PanelContentWrapper>
+          ))}
         </Animated.View>
       </GestureDetector>
     </GestureHandlerRootView>

@@ -1,4 +1,4 @@
-import { Children, FC } from "react";
+import { Children, FC, forwardRef, memo } from "react";
 import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Animated, {
@@ -16,15 +16,21 @@ import {
   GestureHandlerRootView,
   PanGestureHandler,
 } from "react-native-gesture-handler";
+import useUserRenderCount, { useTabListContext } from "../../hooks";
 
 export interface ITabLink {
   title: string;
 }
 
-export const TabLink: FC<ITabLink> = ({ title }) => {
+const TabLink: FC<ITabLink> = forwardRef(({ title, onLayout }, ref) => {
+  useUserRenderCount("TabLink " + title);
+  // const { translateX } = useTabListContext();
+
   return (
-    <View style={{ backgroundColor: "#ff0000" }}>
+    <View ref={ref} onLayout={onLayout} style={{ backgroundColor: "#ff0000" }}>
       <Text style={{ fontSize: 32, color: "#fff" }}>{title}</Text>
     </View>
   );
-};
+});
+
+export default memo(TabLink);

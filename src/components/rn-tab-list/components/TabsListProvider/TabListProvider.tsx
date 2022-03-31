@@ -1,28 +1,27 @@
-import React, { createContext, Dispatch, FC, useState } from "react";
+import React, { createContext, FC, useState } from "react";
 import Animated from "react-native-reanimated";
 
 export type ITabListContext = {
-  currentIndex: Animated.SharedValue<number> | null;
-  translateX: Animated.SharedValue<number> | null;
+  titles: string[];
+  minPosition?: number;
+  translateX?: Animated.SharedValue<number>;
+  currentIndex?: Animated.SharedValue<number>;
   setActiveIndex: (index: number) => void;
 };
 
-export type ITabListSetContext = Dispatch<ITabListContext>;
+export type ITabListSetContext = React.Dispatch<
+  React.SetStateAction<ITabListContext>
+>;
 
 export const TabListSetContext = createContext<ITabListSetContext>(() => {});
-export const TabListContext = createContext<ITabListContext>({
-  currentIndex: null,
-  translateX: null,
-  setActiveIndex: () => {},
-});
+export const TabListContext = createContext<ITabListContext | undefined>(
+  undefined,
+);
 
 export const TabListProvider: FC = ({ children }) => {
-  const [state, setState] = useState<ITabListContext>({
-    currentIndex: null,
-    translateX: null,
-    setActiveIndex: () => {
-      throw new Error("setActiveIndex is not defined");
-    },
+  const [state, setState] = useState({
+    titles: [] as string[],
+    setActiveIndex: (index: number) => {},
   });
   return (
     <TabListSetContext.Provider value={setState}>

@@ -13,8 +13,13 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Tabs>
-        <Panel onIndexChange={(index) => console.log(index)}>
-          <ScrollView pagingEnabled>
+        <TabHeader
+          titles={["Long Tab 1", "Tab 2", "Tab 3"]}
+          style={{ marginTop: 160 }}
+        />
+
+        <Panel>
+          <ScrollView pagingEnabled title="Long title">
             <Image
               source={{
                 uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
@@ -41,19 +46,20 @@ export default function App() {
             />
           </ScrollView>
           <Image
+            title="Tab 2"
             source={{
               uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
             }}
             style={styles.image}
           />
           <Image
+            title="Tab 3"
             source={{
               uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
             }}
             style={styles.image}
           />
         </Panel>
-        <TabHeader titles={["Tab 1", "Tab 2", "Tab 3"]} />
       </Tabs>
     </View>
   );
@@ -65,8 +71,8 @@ const styles = StyleSheet.create({
     // width: 100,
     // height: 100,
     backgroundColor: "dodgerblue",
-    alignItems: "center",
-    justifyContent: "center",
+    // alignItems: "center",
+    // justifyContent: "center",
   },
   imageContainer: {
     flex: 1,
