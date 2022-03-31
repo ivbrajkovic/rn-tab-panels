@@ -58,7 +58,7 @@ const Underline: FC<IUnderlineState> = ({
     return {
       width,
       opacity: opacity.value,
-      transform: [{ translateX: x }],
+      transform: [{ translateX: x }, { scale: 1.1 }],
     };
   }, []);
 
