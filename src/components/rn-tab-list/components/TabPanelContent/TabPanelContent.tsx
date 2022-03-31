@@ -8,17 +8,17 @@ import Animated, {
 import { useTabListContext } from "../../hooks";
 import { SCREEN_WIDTH } from "../constant";
 
-export interface IPanel {
+export interface ITabPanel {
   index: number;
 }
 
-export const PanelContent: FC<IPanel> = ({ index, children }) => {
-  const { translateX: currentTranslateX } = useTabListContext();
+export const TabPanelContent: FC<ITabPanel> = ({ index, children }) => {
+  const { translateX: translationX } = useTabListContext();
 
   const animatedStyle = useAnimatedStyle(() => {
-    if (!currentTranslateX) return {};
+    if (!translationX) return {};
 
-    const totalItemOffset = index * SCREEN_WIDTH + currentTranslateX.value;
+    const totalItemOffset = index * SCREEN_WIDTH + translationX.value;
 
     const translateX = interpolate(
       totalItemOffset,
@@ -33,14 +33,10 @@ export const PanelContent: FC<IPanel> = ({ index, children }) => {
     return { opacity, transform: [{ translateX }, { scale }] };
   });
   return (
-    <Animated.View style={[styles.tab, { zIndex: index }, animatedStyle]}>
+    <Animated.View
+      style={[StyleSheet.absoluteFillObject, { zIndex: index }, animatedStyle]}
+    >
       {children}
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  tab: {
-    ...StyleSheet.absoluteFillObject,
-  },
-});

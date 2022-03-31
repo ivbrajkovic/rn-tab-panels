@@ -2,8 +2,6 @@ import React, { createContext, FC, useState } from "react";
 import Animated from "react-native-reanimated";
 
 export type ITabListContext = {
-  titles: string[];
-  minPosition: number;
   translateX: Animated.SharedValue<number> | null;
   currentIndex: Animated.SharedValue<number> | null;
   setActiveIndex: (index: number) => void;
@@ -18,10 +16,8 @@ export const TabListContext = createContext<ITabListContext | undefined>(
   undefined,
 );
 
-export const TabListProvider: FC = ({ children }) => {
+export const TabList: FC = ({ children }) => {
   const [state, setState] = useState<ITabListContext>({
-    titles: [] as string[],
-    minPosition: 0,
     translateX: null,
     currentIndex: null,
     setActiveIndex: (index: number) => {},

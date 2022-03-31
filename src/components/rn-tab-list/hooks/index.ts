@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext } from "react";
 import {
   TabListContext,
   TabListSetContext,
-} from "../components/TabsListProvider";
+} from "../components/TabListProvider";
 
 export const useTabListContext = () => {
   const context = useContext(TabListContext);

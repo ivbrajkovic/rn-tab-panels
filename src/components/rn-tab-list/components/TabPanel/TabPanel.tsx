@@ -13,27 +13,23 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import PanelContent from "../PanelContent";
+import TabPanelContent from "../TabPanelContent";
 import useUserRenderCount, { useTabListSetContext } from "../../hooks";
 import {
   CHANGE_INDEX_THRESHOLD,
   MAX_POSITION,
   SCREEN_WIDTH,
 } from "../constant";
-import TabHeader from "../TabHeader";
 
-export interface IPanel {
-  titles?: string[];
+export interface ITabPanel {
   changeThreshold?: number;
   headerStyle?: ViewStyle;
   onIndexChange?: (index: number) => void;
 }
 
-export const Panel: FC<IPanel> = ({
-  titles = [],
+export const TabPanel: FC<ITabPanel> = ({
   changeThreshold = CHANGE_INDEX_THRESHOLD,
   onIndexChange,
-  headerStyle,
   children,
 }) => {
   useUserRenderCount("Panel");
@@ -57,11 +53,9 @@ export const Panel: FC<IPanel> = ({
 
   useEffect(() => {
     setContext({
-      titles,
       translateX,
       currentIndex,
       setActiveIndex,
-      minPosition,
     });
   }, []);
 
@@ -94,19 +88,16 @@ export const Panel: FC<IPanel> = ({
     });
 
   return (
-    <>
-      <GestureHandlerRootView style={{ ...StyleSheet.absoluteFillObject }}>
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={StyleSheet.absoluteFillObject}>
-            {childrenArr.map((child, index) => (
-              <PanelContent key={index} index={index}>
-                {child}
-              </PanelContent>
-            ))}
-          </Animated.View>
-        </GestureDetector>
-      </GestureHandlerRootView>
-      {titles.length ? <TabHeader style={headerStyle} /> : null}
-    </>
+    <GestureHandlerRootView style={StyleSheet.absoluteFillObject}>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={StyleSheet.absoluteFillObject}>
+          {childrenArr.map((child, index) => (
+            <TabPanelContent key={index} index={index}>
+              {child}
+            </TabPanelContent>
+          ))}
+        </Animated.View>
+      </GestureDetector>
+    </GestureHandlerRootView>
   );
 };

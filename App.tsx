@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View, Dimensions } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Panel, Tabs } from "./src/components/rn-tab-list";
+import { TabContent, TabHeader, TabList } from "./src/components/rn-tab-list";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -9,15 +9,16 @@ console.log(width, height);
 export default function App() {
   return (
     <View style={styles.container}>
-      <Tabs>
-        <Panel
+      <TabList>
+        <TabHeader
           titles={["long title", "title 2", "title 3"]}
-          headerStyle={{
+          style={{
             marginTop: 180,
             backgroundColor: "#00000070",
             paddingVertical: 10,
           }}
-        >
+        />
+        <TabContent>
           <ScrollView pagingEnabled>
             <Image
               source={{
@@ -56,8 +57,8 @@ export default function App() {
             }}
             style={styles.image}
           />
-        </Panel>
-      </Tabs>
+        </TabContent>
+      </TabList>
     </View>
   );
 }

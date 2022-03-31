@@ -1,5 +1,5 @@
-export { default as Panel } from "./Panel";
+export { default as TabContent } from "./TabPanel";
 export { default as TabLink } from "./TabLink";
 export { default as TabHeader } from "./TabHeader";
-export { default as PanelContent } from "./PanelContent";
-export { default as Tabs } from "./TabsListProvider";
+export { default as TabPanelContent } from "./TabPanelContent";
+export { default as TabList } from "./TabListProvider";

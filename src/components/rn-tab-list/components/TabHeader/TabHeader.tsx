@@ -17,10 +17,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { SCREEN_WIDTH } from "../constant";
 
-export interface ITabHeader {
-  style?: ViewStyle;
-}
-
 type IUnderlineState = {
   isLoading: boolean;
   interpolateInput: number[];
@@ -65,10 +61,15 @@ const Underline: FC<IUnderlineState> = ({
   return <Animated.View style={[styles.underline, underlineStyle]} />;
 };
 
-export const TabHeader: FC<ITabHeader> = ({ style }) => {
+export interface ITabHeader {
+  titles: string[];
+  style?: ViewStyle;
+}
+
+export const TabHeader: FC<ITabHeader> = ({ titles, style }) => {
   useUserRenderCount("TabHeader");
 
-  const { titles, minPosition, setActiveIndex } = useTabListContext();
+  const { setActiveIndex } = useTabListContext();
 
   const [underlineState, setUnderlineState] = useState<IUnderlineState>({
     isLoading: true,
@@ -84,7 +85,7 @@ export const TabHeader: FC<ITabHeader> = ({ style }) => {
   const initiateUnderlineState = () => {
     setUnderlineState({
       isLoading: false,
-      interpolateInput: titles.map((_, i) => minPosition + i * SCREEN_WIDTH),
+      interpolateInput: titles.map((_, i) => -i * SCREEN_WIDTH).reverse(),
       interpolatePosition: titles
         .map((_, i) => stateRef.current[i].positionX)
         .reverse(),
