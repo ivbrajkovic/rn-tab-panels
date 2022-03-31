@@ -1,36 +1,29 @@
-import { Children, FC, forwardRef, memo } from "react";
+import { FC, memo } from "react";
 import React from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
-import Animated, {
-  Easing,
-  Extrapolation,
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-  PanGestureHandler,
-} from "react-native-gesture-handler";
-import useUserRenderCount, { useTabListContext } from "../../hooks";
+import { LayoutChangeEvent, StyleSheet, Text, View } from "react-native";
+
+import useUserRenderCount from "../../hooks";
 
 export interface ITabLink {
   title: string;
+  onLayout: (event: LayoutChangeEvent) => void;
 }
 
-const TabLink: FC<ITabLink> = forwardRef(({ title, onLayout }, ref) => {
+const TabLink: FC<ITabLink> = memo(({ title, onLayout }) => {
   useUserRenderCount("TabLink " + title);
-  // const { translateX } = useTabListContext();
 
   return (
-    <View ref={ref} onLayout={onLayout} style={{ backgroundColor: "#ff0000" }}>
-      <Text style={{ fontSize: 32, color: "#fff" }}>{title}</Text>
+    <View onLayout={onLayout}>
+      <Text style={styles.linkText}>{title}</Text>
     </View>
   );
 });
 
-export default memo(TabLink);
+export default TabLink;
+
+const styles = StyleSheet.create({
+  linkText: {
+    fontSize: 32,
+    color: "#fff",
+  },
+});

@@ -1,9 +1,6 @@
 import { Image, StyleSheet, View, Dimensions } from "react-native";
-import {
-  GestureHandlerRootView,
-  ScrollView,
-} from "react-native-gesture-handler";
-import { Panel, TabHeader, TabItem, Tabs } from "./src/components/rn-tab-list";
+import { ScrollView } from "react-native-gesture-handler";
+import { Panel, Tabs } from "./src/components/rn-tab-list";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -13,13 +10,15 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Tabs>
-        <TabHeader
-          titles={["Long Tab 1", "Tab 2", "Tab 3"]}
-          style={{ marginTop: 160 }}
-        />
-
-        <Panel>
-          <ScrollView pagingEnabled title="Long title">
+        <Panel
+          titles={["long title", "title 2", "title 3"]}
+          headerStyle={{
+            marginTop: 180,
+            backgroundColor: "#00000070",
+            paddingVertical: 10,
+          }}
+        >
+          <ScrollView pagingEnabled>
             <Image
               source={{
                 uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
@@ -46,14 +45,12 @@ export default function App() {
             />
           </ScrollView>
           <Image
-            title="Tab 2"
             source={{
               uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
             }}
             style={styles.image}
           />
           <Image
-            title="Tab 3"
             source={{
               uri: `https://picsum.photos/${~~width}/${~~height}?${Math.random()}`,
             }}

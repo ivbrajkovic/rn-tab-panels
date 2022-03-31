@@ -1,6 +1,6 @@
-import { Children, FC, useEffect, useRef } from "react";
+import { Children, FC, useEffect } from "react";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import Animated, {
   Easing,
   runOnJS,
@@ -13,39 +13,40 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import PanelContentWrapper from "../PanelContentWrapper";
+import PanelContent from "../PanelContent";
 import useUserRenderCount, { useTabListSetContext } from "../../hooks";
 import {
   CHANGE_INDEX_THRESHOLD,
   MAX_POSITION,
   SCREEN_WIDTH,
 } from "../constant";
+import TabHeader from "../TabHeader";
 
 export interface IPanel {
+  titles?: string[];
   changeThreshold?: number;
+  headerStyle?: ViewStyle;
   onIndexChange?: (index: number) => void;
-  children: FC<{ title: string }>;
 }
 
 export const Panel: FC<IPanel> = ({
+  titles = [],
   changeThreshold = CHANGE_INDEX_THRESHOLD,
   onIndexChange,
+  headerStyle,
   children,
 }) => {
   useUserRenderCount("Panel");
+
+  const childrenArr = Children.toArray(children);
+  const minPosition = -childrenArr.length * SCREEN_WIDTH + SCREEN_WIDTH;
 
   const setContext = useTabListSetContext();
 
   const translateX = useSharedValue(0);
   const currentIndex = useSharedValue(0);
 
-  const childrenArr = Children.toArray(children);
-  const titles: string[] = childrenArr.map(
-    (child, index) => child.props.title || index.toString(),
-  );
-
   const setActiveIndex = useWorkletCallback((index: number) => {
-    "worklet";
     const distance = Math.abs(index - currentIndex.value);
     currentIndex.value = index;
     translateX.value = withTiming(-index * SCREEN_WIDTH, {
@@ -54,17 +55,13 @@ export const Panel: FC<IPanel> = ({
     });
   }, []);
 
-  const minPositionRef = useRef(
-    -childrenArr.length * SCREEN_WIDTH + SCREEN_WIDTH,
-  );
-
   useEffect(() => {
     setContext({
       titles,
       translateX,
       currentIndex,
       setActiveIndex,
-      minPosition: minPositionRef.current,
+      minPosition,
     });
   }, []);
 
@@ -73,19 +70,14 @@ export const Panel: FC<IPanel> = ({
       "worklet";
       const x = (translateX.value += changeX);
       translateX.value =
-        x < minPositionRef.current
-          ? minPositionRef.current
-          : x > MAX_POSITION
-          ? MAX_POSITION
-          : x;
+        x < minPosition ? minPosition : x > MAX_POSITION ? MAX_POSITION : x;
     })
     .onEnd(({ translationX }) => {
       // Get swipe direction
       const direction = translationX < 0 ? 1 : -1;
 
       // Do nothing if on the edge
-      if (direction === 1 && translateX.value === minPositionRef.current)
-        return;
+      if (direction === 1 && translateX.value === minPosition) return;
       else if (direction === -1 && translateX.value === MAX_POSITION) return;
 
       // Snap back to the center if lower than change threshold
@@ -102,20 +94,19 @@ export const Panel: FC<IPanel> = ({
     });
 
   return (
-    <GestureHandlerRootView style={{ ...StyleSheet.absoluteFillObject }}>
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={StyleSheet.absoluteFillObject}>
-          {childrenArr.map((child, index) => (
-            <PanelContentWrapper
-              key={index}
-              index={index}
-              position={translateX}
-            >
-              {child}
-            </PanelContentWrapper>
-          ))}
-        </Animated.View>
-      </GestureDetector>
-    </GestureHandlerRootView>
+    <>
+      <GestureHandlerRootView style={{ ...StyleSheet.absoluteFillObject }}>
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={StyleSheet.absoluteFillObject}>
+            {childrenArr.map((child, index) => (
+              <PanelContent key={index} index={index}>
+                {child}
+              </PanelContent>
+            ))}
+          </Animated.View>
+        </GestureDetector>
+      </GestureHandlerRootView>
+      {titles.length ? <TabHeader style={headerStyle} /> : null}
+    </>
   );
 };

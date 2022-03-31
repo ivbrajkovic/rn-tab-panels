@@ -1,40 +1,36 @@
 import { FC } from "react";
-import { Dimensions, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
 } from "react-native-reanimated";
-
-const { width: screenWidth } = Dimensions.get("screen");
+import { useTabListContext } from "../../hooks";
+import { SCREEN_WIDTH } from "../constant";
 
 export interface IPanel {
   index: number;
-  panelWidth?: number;
-  position: Animated.SharedValue<number>;
-  children: React.ReactNode;
 }
 
-export const PanelContentWrapper: FC<IPanel> = ({
-  index,
-  panelWidth = screenWidth,
-  position,
-  children,
-}) => {
+export const PanelContent: FC<IPanel> = ({ index, children }) => {
+  const { translateX: currentTranslateX } = useTabListContext();
+
   const animatedStyle = useAnimatedStyle(() => {
-    const totalItemOffset = index * panelWidth + position.value;
+    if (!currentTranslateX) return {};
+
+    const totalItemOffset = index * SCREEN_WIDTH + currentTranslateX.value;
 
     const translateX = interpolate(
       totalItemOffset,
-      [0, panelWidth],
-      [0, panelWidth],
+      [0, SCREEN_WIDTH],
+      [0, SCREEN_WIDTH],
       Extrapolation.CLAMP,
     );
 
     const scale = interpolate(totalItemOffset, [-200, 0, 200], [0.75, 1, 1]);
     const opacity = interpolate(totalItemOffset, [-600, 0, 200], [0, 1, 0]);
 
-    return { opacity, transform: [{ translateX: translateX }, { scale }] };
+    return { opacity, transform: [{ translateX }, { scale }] };
   });
   return (
     <Animated.View style={[styles.tab, { zIndex: index }, animatedStyle]}>
@@ -46,6 +42,5 @@ export const PanelContentWrapper: FC<IPanel> = ({
 const styles = StyleSheet.create({
   tab: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#ff000040",
   },
 });
